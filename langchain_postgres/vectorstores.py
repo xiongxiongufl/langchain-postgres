@@ -17,7 +17,7 @@ from typing import (
 
 import numpy as np
 import sqlalchemy
-from sqlalchemy import SQLColumnExpression, cast, delete, func
+from sqlalchemy import MetaData, SQLColumnExpression, cast, delete, func
 from sqlalchemy.dialects.postgresql import JSON, JSONB, JSONPATH, UUID, insert
 from sqlalchemy.orm import Session, relationship, sessionmaker
 
@@ -45,7 +45,7 @@ class DistanceStrategy(str, enum.Enum):
 
 DEFAULT_DISTANCE_STRATEGY = DistanceStrategy.COSINE
 
-Base = declarative_base()  # type: Any
+Base = declarative_base(metadata=MetaData(schema='aimlvector'))  # type: Any
 
 
 _LANGCHAIN_DEFAULT_COLLECTION_NAME = "langchain"
@@ -94,6 +94,7 @@ def _get_embedding_collection_store(vector_dimension: Optional[int] = None) -> A
         """Collection store."""
 
         __tablename__ = "langchain_pg_collection"
+        __table_args__ = {'schema': 'aimlvector'}
 
         uuid = sqlalchemy.Column(
             UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -139,6 +140,7 @@ def _get_embedding_collection_store(vector_dimension: Optional[int] = None) -> A
         """Embedding store."""
 
         __tablename__ = "langchain_pg_embedding"
+        __table_args__ = {'schema': 'aimlvector'}
 
         id = sqlalchemy.Column(
             sqlalchemy.String, nullable=True, primary_key=True, index=True, unique=True
